@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { FiPackage, FiCheckCircle, FiClock, FiTrendingUp, FiDollarSign, FiLoader } from 'react-icons/fi';
+import { FiPackage, FiCheckCircle, FiClock, FiDollarSign } from 'react-icons/fi';
 import './ShopDashboard.css';
 
 const mockOrders = [
@@ -27,7 +27,7 @@ const stats = [
 ];
 
 const ShopDashboard = () => {
-  const [orders, setOrders] = useState(mockOrders);
+  const [orders] = useState(mockOrders);
 
   return (
     <div className="shop-dashboard-page">
