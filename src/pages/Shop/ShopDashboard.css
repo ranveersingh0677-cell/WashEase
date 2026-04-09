@@ -1,0 +1,140 @@
+.shop-dashboard-page {
+  padding: 4rem 0;
+  min-height: calc(100vh - 80px);
+  background-color: #f8fafc;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.dashboard-header h2 {
+  font-size: 30px;
+  color: var(--secondary-color);
+  margin-bottom: 0.3rem;
+}
+
+.dashboard-header p {
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  transition: box-shadow 0.3s;
+}
+
+.stat-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.stat-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.stat-info h3 {
+  font-size: 26px;
+  color: var(--secondary-color);
+  margin-bottom: 0;
+}
+
+.stat-info p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Orders Section */
+.orders-section h3 {
+  font-size: 22px;
+  color: var(--secondary-color);
+  margin-bottom: 1.5rem;
+}
+
+.orders-table-wrapper {
+  overflow-x: auto;
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  background: white;
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.orders-table th {
+  padding: 14px 16px;
+  background-color: #f8fafc;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.orders-table td {
+  padding: 14px 16px;
+  border-top: 1px solid var(--border-color);
+  font-size: 15px;
+  color: var(--text-main);
+}
+
+.order-id {
+  font-weight: 600;
+  color: var(--secondary-color) !important;
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.action-link {
+  color: var(--primary-color);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.action-link:hover {
+  color: var(--secondary-color);
+}
+
+@media screen and (max-width: 600px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

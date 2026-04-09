@@ -1,0 +1,126 @@
+.track-order-page {
+  padding: 4rem 0;
+  min-height: calc(100vh - 80px);
+  background-color: #f8fafc;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.page-header h2 {
+  font-size: 32px;
+  color: var(--secondary-color);
+}
+
+.page-header p {
+  color: var(--text-muted);
+}
+
+.search-bar {
+  display: flex;
+  gap: 1rem;
+  max-width: 600px;
+  margin: 0 auto 3rem auto;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 14px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  font-size: 16px;
+  font-family: inherit;
+}
+
+.search-bar input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.1);
+}
+
+.search-bar .btn-primary {
+  padding: 14px 28px;
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+.tracking-result {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+}
+
+.order-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 2rem;
+}
+
+.meta-row {
+  display: flex;
+  flex-direction: column;
+}
+
+.meta-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.meta-value {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.timeline-wrapper {
+  margin-bottom: 2rem;
+}
+
+.timeline-wrapper h3, .order-items-breakdown h3 {
+  font-size: 20px;
+  color: var(--secondary-color);
+  margin-bottom: 1.5rem;
+}
+
+.items-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.items-table th {
+  text-align: left;
+  padding: 10px 12px;
+  background-color: #f8fafc;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.items-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+
+.track-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+@media screen and (max-width: 600px) {
+  .order-meta { grid-template-columns: 1fr; }
+  .track-actions { flex-direction: column; }
+  .search-bar { flex-direction: column; }
+}

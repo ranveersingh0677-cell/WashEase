@@ -1,0 +1,348 @@
+.place-order-page {
+  padding: 4rem 0;
+  background-color: #f8fafc;
+  min-height: calc(100vh - 80px);
+}
+
+.order-header {
+  margin-bottom: 2rem;
+}
+
+.order-header h2 {
+  font-size: 32px;
+  color: var(--secondary-color);
+}
+
+.order-content {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.services-selection {
+  flex: 2;
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
+.service-row {
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  transition: border-color 0.3s, background 0.3s;
+}
+
+.service-row:hover {
+  border-color: var(--primary-color);
+}
+
+.service-row--active {
+  border-color: var(--primary-color);
+  background: rgba(0, 180, 216, 0.04);
+}
+
+.service-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.service-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.service-icon {
+  font-size: 32px;
+  background: var(--bg-color);
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}
+
+.service-info h4 {
+  margin-bottom: 0px;
+  font-size: 18px;
+}
+
+.service-info p {
+  color: var(--text-muted);
+  margin: 0;
+  font-size: 14px;
+}
+
+.price-range {
+  color: var(--primary-color) !important;
+  font-weight: 600;
+  font-size: 13px !important;
+}
+
+/* Cloth type selector */
+.cloth-type-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px dashed var(--border-color);
+  overflow: hidden;
+}
+
+.cloth-type-row label {
+  font-size: 13px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.cloth-select {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  font-family: inherit;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.cloth-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.1);
+}
+
+/* Pricing disclaimer note */
+.pricing-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 1.25rem;
+  padding: 12px 16px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  font-size: 13.5px;
+  color: #92400e;
+  line-height: 1.6;
+}
+
+.pricing-note span {
+  font-size: 18px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.pricing-note p {
+  margin: 0;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-qty {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-main);
+  transition: all 0.2s;
+}
+
+.btn-qty:hover {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.qty-display {
+  font-weight: 600;
+  width: 20px;
+  text-align: center;
+}
+
+.mt-4 {
+  margin-top: 2rem;
+}
+
+.mb-4 {
+  margin-bottom: 2rem;
+}
+
+/* Shop selector */
+.shop-selector h3 {
+  font-size: 18px;
+  margin-bottom: 1rem;
+  color: var(--secondary-color);
+}
+
+.shop-select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border-color);
+  font-family: inherit;
+  font-size: 15px;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  color: var(--text-main);
+}
+
+.shop-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.1);
+}
+
+.address-section h3, .pickup-time h3 {
+  font-size: 18px;
+  margin-bottom: 1rem;
+  color: var(--secondary-color);
+}
+
+.address-section textarea, .pickup-time select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  font-family: inherit;
+  font-size: 15px;
+}
+
+.address-section textarea:focus, .pickup-time select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.1);
+}
+
+.order-summary {
+  flex: 1;
+  position: sticky;
+  top: 100px;
+}
+
+.summary-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+}
+
+.summary-card h3 {
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.summary-row.total {
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--secondary-color);
+  margin-top: 1rem;
+}
+
+.price-tbd {
+  font-style: italic;
+  color: var(--primary-color);
+  font-size: 12.5px;
+}
+
+.selected-shop-badge {
+  margin-top: 1rem;
+  padding: 8px 12px;
+  background: rgba(0, 180, 216, 0.08);
+  border: 1px solid rgba(0, 180, 216, 0.3);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+hr {
+  border: none;
+  border-top: 1px dashed var(--border-color);
+  margin: 1.5rem 0;
+}
+
+.payment-options h4 {
+  margin-bottom: 1rem;
+}
+
+.payment-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.payment-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.payment-label:hover {
+  background-color: rgba(0, 180, 216, 0.05);
+}
+
+.payment-label.active {
+  border-color: var(--primary-color);
+  background-color: rgba(0, 180, 216, 0.1);
+  font-weight: 600;
+}
+
+.place-order-btn {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+}
+
+.place-order-btn:disabled {
+  background-color: var(--border-color);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+@media screen and (max-width: 900px) {
+  .order-content {
+    flex-direction: column;
+  }
+  .services-selection, .order-summary {
+    width: 100%;
+  }
+}
