@@ -1,12 +1,25 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { FiMenu, FiX } from 'react-icons/fi';
+import { Link, useNavigate } from 'react-router-dom';
+import { FiMenu, FiX, FiUser, FiLogOut } from 'react-icons/fi';
+import { useAuth } from '../../context/AuthContext';
 import './Navbar.css';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { userData, logout } = useAuth();
+  const navigate = useNavigate();
 
   const toggleMenu = () => setIsOpen(!isOpen);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toggleMenu();
+      navigate('/login');
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
+  };
 
   return (
     <nav className="navbar">
@@ -20,9 +33,23 @@ const Navbar = () => {
           <Link to="/track-order" className="nav-link" onClick={toggleMenu}>Track Order</Link>
           <Link to="/my-orders" className="nav-link" onClick={toggleMenu}>My Orders</Link>
           <Link to="/shop-dashboard" className="nav-link" onClick={toggleMenu}>Shop Dashboard</Link>
+          
           <div className="nav-actions">
-            <Link to="/auth" className="btn-outline" onClick={toggleMenu}>Login</Link>
-            <Link to="/shop-register" className="btn-primary" onClick={toggleMenu}>Partner with us</Link>
+            {userData ? (
+              <div className="user-nav-info">
+                <span className="user-name">
+                  <FiUser className="icon" /> {userData.name}
+                </span>
+                <button onClick={handleLogout} className="logout-btn">
+                  <FiLogOut /> Logout
+                </button>
+              </div>
+            ) : (
+              <>
+                <Link to="/login" className="btn-outline" onClick={toggleMenu}>Login</Link>
+                <Link to="/shop-register" className="btn-primary" onClick={toggleMenu}>Partner with us</Link>
+              </>
+            )}
           </div>
         </div>
         <div className="nav-icon" onClick={toggleMenu}>

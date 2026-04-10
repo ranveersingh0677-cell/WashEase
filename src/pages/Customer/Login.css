@@ -1,0 +1,140 @@
+.auth-page {
+  padding: 80px 0;
+  min-height: calc(100vh - 80px);
+  background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+  display: flex;
+  align-items: center;
+}
+
+.auth-box {
+  max-width: 450px;
+  margin: 0 auto;
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.auth-header h2 {
+  font-size: 2rem;
+  color: var(--secondary-color);
+  margin-bottom: 10px;
+}
+
+.auth-header p {
+  color: #666;
+}
+
+.method-toggle {
+  display: flex;
+  background: #f0f2f5;
+  padding: 5px;
+  border-radius: 10px;
+  margin-bottom: 25px;
+}
+
+.method-toggle button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #666;
+  transition: all 0.3s ease;
+}
+
+.method-toggle button.active {
+  background: white;
+  color: var(--primary-color);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.error-alert {
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.auth-form .form-group {
+  margin-bottom: 20px;
+}
+
+.auth-form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #444;
+}
+
+.auth-form input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.auth-form input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.phone-input-wrapper {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.phone-input-wrapper span {
+  padding: 0 15px;
+  background: #f8f9fa;
+  border-right: 1px solid #ddd;
+  color: #666;
+  font-weight: 500;
+}
+
+.phone-input-wrapper input {
+  border: none;
+}
+
+#recaptcha-container {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.auth-footer {
+  margin-top: 25px;
+  text-align: center;
+  color: #666;
+}
+
+.text-btn {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.text-btn:hover {
+  text-decoration: underline;
+}
+
+.mt-10 { margin-top: 10px; }
+.btn-block { width: 100%; }

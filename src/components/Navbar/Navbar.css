@@ -96,3 +96,53 @@
     display: block;
   }
 }
+
+.user-nav-info {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.user-name {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--secondary-color);
+  font-weight: 600;
+}
+
+.user-name .icon {
+  color: var(--primary-color);
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: 1px solid #ddd;
+  padding: 8px 15px;
+  border-radius: 8px;
+  color: #666;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background: #f8f9fa;
+  color: #dc2626;
+  border-color: #dc2626;
+}
+
+@media screen and (max-width: 960px) {
+  .user-nav-info {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .logout-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

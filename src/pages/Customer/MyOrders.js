@@ -1,45 +1,48 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { FiPackage, FiArrowRight } from 'react-icons/fi';
+import { FiPackage, FiArrowRight, FiLoader } from 'react-icons/fi';
+import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase';
+import { useAuth } from '../../context/AuthContext';
 import './MyOrders.css';
 
-const mockOrders = [
-  {
-    id: 'WE-20240001',
-    date: '08 Apr 2026',
-    items: 8,
-    total: 95,
-    status: 'Washing',
-    statusStep: 3,
-  },
-  {
-    id: 'WE-20240002',
-    date: '05 Apr 2026',
-    items: 12,
-    total: 180,
-    status: 'Delivered',
-    statusStep: 5,
-  },
-  {
-    id: 'WE-20240003',
-    date: '01 Apr 2026',
-    items: 5,
-    total: 75,
-    status: 'Delivered',
-    statusStep: 5,
-  },
-];
-
 const statusColors = {
-  'Delivered': '#10B981',
-  'Washing': '#00B4D8',
-  'Out for Delivery': '#F59E0B',
   'Order Placed': '#6366F1',
   'Picked Up': '#3B82F6',
+  'Washing': '#00B4D8',
+  'Out for Delivery': '#F59E0B',
+  'Delivered': '#10B981',
 };
 
 const MyOrders = () => {
+  const { currentUser } = useAuth();
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      if (!currentUser) return;
+      try {
+        const q = query(
+          collection(db, "orders"),
+          where("customerId", "==", currentUser.uid),
+          orderBy("createdAt", "desc")
+        );
+        const querySnapshot = await getDocs(q);
+        const fetchedOrders = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setOrders(fetchedOrders);
+      } catch (error) {
+        console.error("Error fetching my orders:", error);
+      }
+      setLoading(false);
+    };
+
+    fetchOrders();
+  }, [currentUser]);
   return (
     <div className="my-orders-page">
       <div className="container">
@@ -49,38 +52,54 @@ const MyOrders = () => {
         </div>
 
         <div className="orders-list">
-          {mockOrders.map((order, index) => (
-            <motion.div
-              key={order.id}
-              className="order-card"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
-              whileHover={{ y: -4 }}
-            >
-              <div className="order-card-left">
-                <div className="order-icon">
-                  <FiPackage />
+          {loading ? (
+            <div className="loading-state">
+              <FiLoader className="spinner" />
+              <p>Fetching your orders...</p>
+            </div>
+          ) : orders.length > 0 ? (
+            orders.map((order, index) => (
+              <motion.div
+                key={order.id}
+                className="order-card"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+                whileHover={{ y: -4 }}
+              >
+                <div className="order-card-left">
+                  <div className="order-icon">
+                    <FiPackage />
+                  </div>
+                  <div className="order-info">
+                    <h4>{order.orderId}</h4>
+                    <p>
+                      {order.createdAt?.toDate ? order.createdAt.toDate().toLocaleDateString() : 'Just now'} · {order.totalItems} items
+                    </p>
+                  </div>
                 </div>
-                <div className="order-info">
-                  <h4>{order.id}</h4>
-                  <p>{order.date} · {order.items} items</p>
+                <div className="order-card-right">
+                  <span
+                    className="status-badge"
+                    style={{ 
+                      backgroundColor: `${statusColors[order.status]}20`, 
+                      color: statusColors[order.status] 
+                    }}
+                  >
+                    {order.status}
+                  </span>
+                  <span className="order-amount">₹{order.totalAmount || 'TBD'}</span>
+                  <Link to="/track-order" state={{ orderId: order.orderId }} className="track-link">
+                    Track <FiArrowRight />
+                  </Link>
                 </div>
-              </div>
-              <div className="order-card-right">
-                <span
-                  className="status-badge"
-                  style={{ backgroundColor: `${statusColors[order.status]}20`, color: statusColors[order.status] }}
-                >
-                  {order.status}
-                </span>
-                <span className="order-amount">₹{order.total}</span>
-                <Link to="/track-order" className="track-link">
-                  Track <FiArrowRight />
-                </Link>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))
+          ) : (
+            <div className="empty-state">
+              <p>No orders found. Start by scheduling a pickup!</p>
+            </div>
+          )}
         </div>
 
         <div className="orders-empty-cta">

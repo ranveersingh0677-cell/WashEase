@@ -4,6 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { FiPlus, FiMinus, FiShoppingBag, FiMapPin } from 'react-icons/fi';
 import './PlaceOrder.css';
 
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../../firebase';
+import { useAuth } from '../../context/AuthContext';
+
 const services = [
   { id: 'wash-fold',  name: 'Wash & Fold',   priceRange: '₹8 – ₹15 / piece',   icon: '👕' },
   { id: 'wash-iron',  name: 'Wash & Iron',   priceRange: '₹12 – ₹20 / piece',  icon: '👔' },
@@ -25,11 +29,24 @@ const shops = [
 const defaultItems = () =>
   Object.fromEntries(services.map((s) => [s.id, { qty: 0, clothType: '' }]));
 
+const generateOrderId = () => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = 'WE-';
+  for (let i = 0; i < 6; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+};
+
 const PlaceOrder = () => {
   const navigate = useNavigate();
+  const { currentUser, userData } = useAuth();
   const [items, setItems] = useState(defaultItems());
-  const [selectedPayment, setSelectedPayment] = useState('cod');
+  const [selectedPayment, setSelectedPayment] = useState('cash on delivery');
   const [selectedShop, setSelectedShop] = useState('');
+  const [address, setAddress] = useState('');
+  const [pickupTime, setPickupTime] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const updateQty = (id, delta) =>
     setItems((prev) => ({
@@ -40,11 +57,11 @@ const PlaceOrder = () => {
   const updateClothType = (id, value) =>
     setItems((prev) => ({ ...prev, [id]: { ...prev[id], clothType: value } }));
 
-  const totalItems = Object.values(items).reduce((a, b) => a + b.qty, 0);
+  const totalItemsCount = Object.values(items).reduce((a, b) => a + b.qty, 0);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (totalItems === 0) {
+    if (totalItemsCount === 0) {
       alert('Please add at least one item.');
       return;
     }
@@ -52,7 +69,40 @@ const PlaceOrder = () => {
       alert('Please select a laundry shop.');
       return;
     }
-    navigate('/track-order', { state: { newOrder: true } });
+    if (!address || !pickupTime) {
+      alert('Please provide address and pickup time.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const orderId = generateOrderId();
+      const shopInfo = shops.find(s => s.id === selectedShop);
+      
+      const orderData = {
+        orderId: orderId,
+        customerId: currentUser.uid,
+        customerName: userData?.name || 'Guest User',
+        customerPhone: userData?.phone || '',
+        items: items,
+        totalItems: totalItemsCount,
+        totalAmount: 0, // Confirmed after pickup
+        shopId: selectedShop,
+        shopName: shopInfo?.label || '',
+        address: address,
+        pickupTime: pickupTime,
+        paymentMethod: selectedPayment,
+        status: "Order Placed",
+        createdAt: serverTimestamp()
+      };
+
+      await addDoc(collection(db, "orders"), orderData);
+      navigate('/track-order', { state: { orderId: orderId, newOrder: true } });
+    } catch (error) {
+      console.error("Error placing order:", error);
+      alert("Failed to place order. Please try again.");
+    }
+    setLoading(false);
   };
 
   return (
@@ -152,17 +202,27 @@ const PlaceOrder = () => {
             {/* Address */}
             <div className="address-section mt-4">
               <h3>Pickup Address (Jhansi)</h3>
-              <textarea placeholder="Enter full address, landmark, nearby area..." rows="3" required />
+              <textarea 
+                placeholder="Enter full address, landmark, nearby area..." 
+                rows="3" 
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                required 
+              />
             </div>
 
             {/* Pickup time */}
             <div className="pickup-time mt-4">
               <h3>Preferred Pickup Time</h3>
-              <select required>
+              <select 
+                value={pickupTime}
+                onChange={(e) => setPickupTime(e.target.value)}
+                required
+              >
                 <option value="">Select a time slot</option>
-                <option value="today-morning">Today (09:00 AM – 12:00 PM)</option>
-                <option value="today-evening">Today (04:00 PM – 07:00 PM)</option>
-                <option value="tomorrow-morning">Tomorrow (09:00 AM – 12:00 PM)</option>
+                <option value="Today (09:00 AM – 12:00 PM)">Today (09:00 AM – 12:00 PM)</option>
+                <option value="Today (04:00 PM – 07:00 PM)">Today (04:00 PM – 07:00 PM)</option>
+                <option value="Tomorrow (09:00 AM – 12:00 PM)">Tomorrow (09:00 AM – 12:00 PM)</option>
               </select>
             </div>
           </div>
@@ -174,7 +234,7 @@ const PlaceOrder = () => {
               <div className="summary-details">
                 <div className="summary-row">
                   <span>Total Items</span>
-                  <span>{totalItems} pieces</span>
+                  <span>{totalItemsCount} pieces</span>
                 </div>
 
                 {services.map((s) =>
@@ -229,9 +289,9 @@ const PlaceOrder = () => {
                 type="button"
                 className="btn-primary btn-block place-order-btn"
                 onClick={handleSubmit}
-                disabled={totalItems === 0 || !selectedShop}
+                disabled={totalItemsCount === 0 || !selectedShop || loading}
               >
-                Place Order <FiShoppingBag />
+                {loading ? 'Processing Order...' : 'Place Order'} <FiShoppingBag />
               </button>
             </div>
           </div>

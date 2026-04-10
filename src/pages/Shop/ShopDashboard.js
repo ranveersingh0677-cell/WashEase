@@ -1,15 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { FiPackage, FiCheckCircle, FiClock, FiDollarSign } from 'react-icons/fi';
+import { FiPackage, FiCheckCircle, FiClock, FiDollarSign, FiLoader } from 'react-icons/fi';
+import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase';
+import { useAuth } from '../../context/AuthContext';
 import './ShopDashboard.css';
-
-const mockOrders = [
-  { id: 'WE-20240001', customer: 'Rahul Gupta', items: 8, amount: 95, status: 'Washing', time: '10:30 AM' },
-  { id: 'WE-20240004', customer: 'Priya Sharma', items: 12, amount: 180, status: 'Picked Up', time: '11:15 AM' },
-  { id: 'WE-20240005', customer: 'Amit Singh', items: 5, amount: 75, status: 'Order Placed', time: '12:00 PM' },
-  { id: 'WE-20240006', customer: 'Neha Verma', items: 10, amount: 150, status: 'Out for Delivery', time: '01:30 PM' },
-];
 
 const statusColors = {
   'Order Placed': { bg: '#EEF2FF', text: '#6366F1' },
@@ -19,15 +15,52 @@ const statusColors = {
   'Delivered':    { bg: '#D1FAE5', text: '#10B981' },
 };
 
-const stats = [
-  { label: 'Today\'s Orders', value: '12', icon: <FiPackage />, color: '#00B4D8' },
-  { label: 'Completed', value: '8', icon: <FiCheckCircle />, color: '#10B981' },
-  { label: 'Pending', value: '4', icon: <FiClock />, color: '#F59E0B' },
-  { label: 'Today\'s Revenue', value: '₹1,840', icon: <FiDollarSign />, color: '#6366F1' },
-];
-
 const ShopDashboard = () => {
-  const [orders] = useState(mockOrders);
+  const { userData } = useAuth();
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState([
+    { label: 'Today\'s Orders', value: '0', icon: <FiPackage />, color: '#00B4D8' },
+    { label: 'Completed', value: '0', icon: <FiCheckCircle />, color: '#10B981' },
+    { label: 'Pending', value: '0', icon: <FiClock />, color: '#F59E0B' },
+    { label: 'Today\'s Revenue', value: '₹0', icon: <FiDollarSign />, color: '#6366F1' },
+  ]);
+
+  useEffect(() => {
+    const fetchShopOrders = async () => {
+      if (!userData?.name) return;
+      try {
+        const q = query(
+          collection(db, "orders"),
+          where("shopName", "==", userData.name),
+          orderBy("createdAt", "desc")
+        );
+        const querySnapshot = await getDocs(q);
+        const fetchedOrders = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setOrders(fetchedOrders);
+
+        // Update basic stats
+        const completed = fetchedOrders.filter(o => o.status === 'Delivered').length;
+        const pending = fetchedOrders.length - completed;
+        setStats([
+          { label: 'Total Orders', value: fetchedOrders.length.toString(), icon: <FiPackage />, color: '#00B4D8' },
+          { label: 'Completed', value: completed.toString(), icon: <FiCheckCircle />, color: '#10B981' },
+          { label: 'Pending', value: pending.toString(), icon: <FiClock />, color: '#F59E0B' },
+          { label: 'Total Items', value: fetchedOrders.reduce((acc, curr) => acc + (curr.totalItems || 0), 0).toString(), icon: <FiDollarSign />, color: '#6366F1' },
+        ]);
+      } catch (error) {
+        console.error("Error fetching shop orders:", error);
+      }
+      setLoading(false);
+    };
+
+    fetchShopOrders();
+  }, [userData]);
+
+  if (loading) return <div className="loading-state"><FiLoader className="spinner" /> Loading Dashboard...</div>;
 
   return (
     <div className="shop-dashboard-page">
@@ -35,7 +68,7 @@ const ShopDashboard = () => {
         <div className="dashboard-header">
           <div>
             <h2>Shop Dashboard</h2>
-            <p>Sharma Laundry, Civil Lines, Jhansi — Welcome back!</p>
+            <p>{userData?.name || 'Your Shop'} — Welcome back!</p>
           </div>
           <Link to="/update-order" className="btn-primary">
             Update Order Status
@@ -66,7 +99,7 @@ const ShopDashboard = () => {
 
         {/* Incoming Orders */}
         <div className="orders-section">
-          <h3>Incoming Orders</h3>
+          <h3>Recent Orders</h3>
           <div className="orders-table-wrapper">
             <table className="orders-table">
               <thead>
@@ -74,33 +107,37 @@ const ShopDashboard = () => {
                   <th>Order ID</th>
                   <th>Customer</th>
                   <th>Items</th>
-                  <th>Amount</th>
-                  <th>Time</th>
+                  <th>Date</th>
                   <th>Status</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
-                {orders.map((order) => {
-                  const sc = statusColors[order.status] || { bg: '#f3f4f6', text: '#374151' };
-                  return (
-                    <tr key={order.id}>
-                      <td className="order-id">{order.id}</td>
-                      <td>{order.customer}</td>
-                      <td>{order.items} pcs</td>
-                      <td>₹{order.amount}</td>
-                      <td>{order.time}</td>
-                      <td>
-                        <span className="status-pill" style={{ background: sc.bg, color: sc.text }}>
-                          {order.status}
-                        </span>
-                      </td>
-                      <td>
-                        <Link to="/update-order" className="action-link">Update →</Link>
-                      </td>
-                    </tr>
-                  );
-                })}
+                {orders.length > 0 ? (
+                  orders.map((order) => {
+                    const sc = statusColors[order.status] || { bg: '#f3f4f6', text: '#374151' };
+                    return (
+                      <tr key={order.id}>
+                        <td className="order-id">{order.orderId}</td>
+                        <td>{order.customerName}</td>
+                        <td>{order.totalItems} pcs</td>
+                        <td>{order.createdAt?.toDate ? order.createdAt.toDate().toLocaleDateString() : 'Today'}</td>
+                        <td>
+                          <span className="status-pill" style={{ background: sc.bg, color: sc.text }}>
+                            {order.status}
+                          </span>
+                        </td>
+                        <td>
+                          <Link to="/update-order" state={{ docId: order.id }} className="action-link">Update →</Link>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan="6" style={{textAlign: 'center', padding: '20px'}}>No orders yet.</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
