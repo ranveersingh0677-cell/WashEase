@@ -322,6 +322,24 @@ hr {
   font-weight: 600;
 }
 
+.payment-info-note {
+  margin-top: 1rem;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  background: var(--bg-color);
+  padding: 12px;
+  border-radius: 8px;
+  border-left: 4px solid var(--primary-color);
+}
+
+.payment-info-note span {
+  color: var(--primary-color);
+  font-weight: 600;
+  display: inline-block;
+  margin-top: 4px;
+}
+
 .place-order-btn {
   margin-top: 2rem;
   display: flex;

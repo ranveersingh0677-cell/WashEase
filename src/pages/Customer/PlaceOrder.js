@@ -267,23 +267,23 @@ const PlaceOrder = () => {
               <div className="payment-options mt-4">
                 <h4>Payment Method</h4>
                 <div className="payment-grid">
-                  {['Google Pay', 'PhonePe', 'Paytm', 'Amazon Pay', 'BHIM UPI', 'Cash on Delivery'].map((method) => (
-                    <label
-                      key={method}
-                      className={`payment-label ${selectedPayment === method.toLowerCase() ? 'active' : ''}`}
-                    >
-                      <input
-                        type="radio"
-                        name="payment"
-                        value={method.toLowerCase()}
-                        checked={selectedPayment === method.toLowerCase()}
-                        onChange={(e) => setSelectedPayment(e.target.value)}
-                      />
-                      {method}
-                    </label>
-                  ))}
+                  <label className="payment-label active">
+                    <input
+                      type="radio"
+                      name="payment"
+                      value="cash on delivery"
+                      checked={true}
+                      readOnly
+                    />
+                    Cash on Delivery
+                  </label>
                 </div>
+                <p className="payment-info-note">
+                  Pay cash to the pickup boy when clothes are collected. 
+                  <br /><span>Online payments coming soon!</span>
+                </p>
               </div>
+
 
               <button
                 type="button"
