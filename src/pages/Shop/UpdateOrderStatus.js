@@ -37,7 +37,7 @@ const UpdateOrderStatus = () => {
 
   useEffect(() => {
     fetchOrders();
-  }, [userData]);
+  }, [userData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const moveToNext = async (docId, currentStatus) => {
     const currentIndex = statusSteps.indexOf(currentStatus);
