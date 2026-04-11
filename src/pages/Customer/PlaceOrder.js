@@ -42,7 +42,7 @@ const PlaceOrder = () => {
   const navigate = useNavigate();
   const { currentUser, userData } = useAuth();
   const [items, setItems] = useState(defaultItems());
-  const [selectedPayment, setSelectedPayment] = useState('cash on delivery');
+  const [selectedPayment] = useState('cash on delivery');
   const [selectedShop, setSelectedShop] = useState('');
   const [address, setAddress] = useState('');
   const [pickupTime, setPickupTime] = useState('');
