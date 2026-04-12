@@ -16,10 +16,10 @@ const statusToStepMap = {
 
 const OrderTracking = () => {
   const location = useLocation();
-  const [orderId, setOrderId] = useState(location.state?.orderId || '');
+  const [orderId, setOrderId] = useState(location.state?.orderId || localStorage.getItem('lastOrderTrackingId') || '');
   const [orderData, setOrderData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [searched, setSearched] = useState(!!location.state?.orderId);
+  const [searched, setSearched] = useState(!!(location.state?.orderId || localStorage.getItem('lastOrderTrackingId')));
   const [error, setError] = useState('');
 
   const fetchOrder = useCallback(async (idToFetch) => {
@@ -34,6 +34,8 @@ const OrderTracking = () => {
         const data = querySnapshot.docs[0].data();
         setOrderData(data);
         setSearched(true);
+        // Persist for page refreshes
+        localStorage.setItem('lastOrderTrackingId', idToFetch.trim());
       } else {
         setOrderData(null);
         setError('Order not found. Please check the ID.');
@@ -47,8 +49,9 @@ const OrderTracking = () => {
   }, []);
 
   useEffect(() => {
-    if (location.state?.orderId) {
-      fetchOrder(location.state.orderId);
+    const idToAutoFetch = location.state?.orderId || localStorage.getItem('lastOrderTrackingId');
+    if (idToAutoFetch) {
+      fetchOrder(idToAutoFetch);
     }
   }, [location.state?.orderId, fetchOrder]);
 

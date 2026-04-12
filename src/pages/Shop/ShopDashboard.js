@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { FiPackage, FiCheckCircle, FiClock, FiDollarSign, FiLoader } from 'react-icons/fi';
-import { collection, query, where, orderBy, getDocs} from 'firebase/firestore';
+import { FiPackage, FiCheckCircle, FiClock, FiDollarSign, FiLoader, FiChevronDown, FiChevronUp, FiMapPin } from 'react-icons/fi';
+import { collection, query, where, orderBy, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
@@ -22,6 +22,8 @@ const ShopDashboard = () => {
   const [shopData, setShopData] = useState(null);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [expandedOrderId, setExpandedOrderId] = useState(null);
+  const [updatingId, setUpdatingId] = useState(null);
   const [stats, setStats] = useState([
     { label: 'Total Orders', value: '0', icon: <FiPackage />, color: '#00B4D8' },
     { label: 'Completed', value: '0', icon: <FiCheckCircle />, color: '#10B981' },
@@ -77,6 +79,8 @@ const ShopDashboard = () => {
         }));
         
         setOrders(fetchedOrders);
+        console.log("Registered shop name:", currentShop.shopName);
+        console.log("Orders found for this shop:", fetchedOrders.length);
 
         // 3. Update Stats
         const completed = fetchedOrders.filter(o => o.status === 'Delivered').length;
@@ -99,6 +103,24 @@ const ShopDashboard = () => {
 
     initializeDashboard();
   }, [userData, navigate]);
+
+  const handleStatusUpdate = async (docId, newStatus) => {
+    setUpdatingId(docId);
+    try {
+      const orderRef = doc(db, "orders", docId);
+      await updateDoc(orderRef, { status: newStatus });
+      
+      // Update local state
+      setOrders(prev => prev.map(order => 
+        order.id === docId ? { ...order, status: newStatus } : order
+      ));
+    } catch (error) {
+      console.error("Error updating status:", error);
+      alert("Failed to update status. Please try again.");
+    } finally {
+      setUpdatingId(null);
+    }
+  };
 
   if (loading) return <div className="loading-state"><FiLoader className="spinner" /> Loading Dashboard...</div>;
 
@@ -155,22 +177,86 @@ const ShopDashboard = () => {
               <tbody>
                 {orders.length > 0 ? (
                   orders.map((order) => {
-                    const sc = statusColors[order.status] || { bg: '#f3f4f6', text: '#374151' };
+                    const sc = statusColors[order.status] || { bg: '#f3f4f5', text: '#374151' };
+                    const isExpanded = expandedOrderId === order.id;
+
                     return (
-                      <tr key={order.id}>
-                        <td className="order-id">{order.orderId}</td>
-                        <td>{order.customerName}</td>
-                        <td>{order.totalItems} pcs</td>
-                        <td>{order.createdAt?.toDate ? order.createdAt.toDate().toLocaleDateString() : 'Today'}</td>
-                        <td>
-                          <span className="status-pill" style={{ background: sc.bg, color: sc.text }}>
-                            {order.status}
-                          </span>
-                        </td>
-                        <td>
-                          <Link to="/update-order" state={{ docId: order.id }} className="action-link">Update →</Link>
-                        </td>
-                      </tr>
+                      <React.Fragment key={order.id}>
+                        <tr className={isExpanded ? 'row-expanded' : ''}>
+                          <td className="order-id">{order.orderId}</td>
+                          <td>{order.customerName}</td>
+                          <td>{order.totalItems} pcs</td>
+                          <td>{order.createdAt?.toDate ? order.createdAt.toDate().toLocaleDateString() : 'Today'}</td>
+                          <td>
+                            <select 
+                              className="status-select"
+                              value={order.status}
+                              onChange={(e) => handleStatusUpdate(order.id, e.target.value)}
+                              disabled={updatingId === order.id}
+                              style={{ 
+                                backgroundColor: sc.bg, 
+                                color: sc.text,
+                                border: `1px solid ${sc.text}40`
+                              }}
+                            >
+                              {Object.keys(statusColors).map(status => (
+                                <option key={status} value={status}>{status}</option>
+                              ))}
+                            </select>
+                            {updatingId === order.id && <FiLoader className="inline-spinner" />}
+                          </td>
+                          <td>
+                            <button 
+                              className="btn-details" 
+                              onClick={() => setExpandedOrderId(isExpanded ? null : order.id)}
+                            >
+                              {isExpanded ? <><FiChevronUp /> Less</> : <><FiChevronDown /> Details</>}
+                            </button>
+                          </td>
+                        </tr>
+                        {isExpanded && (
+                          <tr className="details-row">
+                            <td colSpan="6">
+                              <motion.div 
+                                className="expanded-details"
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                              >
+                                <div className="details-grid">
+                                  <div className="details-items">
+                                    <h4>Items Breakdown</h4>
+                                    <table className="mini-table">
+                                      <thead>
+                                        <tr>
+                                          <th>Service</th>
+                                          <th>Qty</th>
+                                          <th>Cloth Type</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {Object.entries(order.items || {}).filter(([_, details]) => details.qty > 0).map(([id, details]) => (
+                                          <tr key={id}>
+                                            <td style={{textTransform: 'capitalize'}}>{id.replace('-', ' ')}</td>
+                                            <td>{details.qty} pcs</td>
+                                            <td>{details.clothType || 'General'}</td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                  <div className="details-info">
+                                    <h4>Order Info</h4>
+                                    <p><strong><FiMapPin /> Address:</strong> {order.address}</p>
+                                    <p><strong>🕒 Pickup Time:</strong> {order.pickupTime}</p>
+                                    <p><strong>📞 Contact:</strong> {order.customerPhone}</p>
+                                    <p><strong>💳 Payment:</strong> {order.paymentMethod}</p>
+                                  </div>
+                                </div>
+                              </motion.div>
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
                     );
                   })
                 ) : (

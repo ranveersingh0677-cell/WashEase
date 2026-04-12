@@ -111,6 +111,13 @@
   margin-top: 2rem;
 }
 
+.order-shop-name {
+  font-size: 13px;
+  color: var(--primary-color);
+  font-weight: 600;
+  margin-top: 4px;
+}
+
 @media screen and (max-width: 680px) {
   .order-card {
     flex-direction: column;

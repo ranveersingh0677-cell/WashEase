@@ -73,9 +73,10 @@ const MyOrders = () => {
                   </div>
                   <div className="order-info">
                     <h4>{order.orderId}</h4>
-                    <p>
+                    <p className="order-meta-text">
                       {order.createdAt?.toDate ? order.createdAt.toDate().toLocaleDateString() : 'Just now'} · {order.totalItems} items
                     </p>
+                    <p className="order-shop-name">🏪 {order.shopName || 'Laundry Shop'}</p>
                   </div>
                 </div>
                 <div className="order-card-right">

@@ -111,7 +111,8 @@ const PlaceOrder = () => {
         status: "Order Placed",
         createdAt: serverTimestamp()
       };
-
+      
+      console.log("Saving order for shop:", orderData.shopName);
       await addDoc(collection(db, "orders"), orderData);
       navigate('/track-order', { state: { orderId: orderId, newOrder: true } });
     } catch (error) {
