@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { FiPackage, FiCheckCircle, FiClock, FiDollarSign, FiLoader } from 'react-icons/fi';
-import { collection, query, where, orderBy, getDocs, or } from 'firebase/firestore';
+import { collection, query, where, orderBy, getDocs} from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
