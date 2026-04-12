@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { FiPlus, FiMinus, FiShoppingBag, FiMapPin, FiLoader } from 'react-icons/fi';
+import { FiPlus, FiMinus, FiShoppingBag, FiMapPin } from 'react-icons/fi';
 import './PlaceOrder.css';
 
 import { collection, addDoc, serverTimestamp, getDocs } from 'firebase/firestore';
