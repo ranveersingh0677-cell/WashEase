@@ -1,7 +1,4 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
 import './ShopRegister.css';
@@ -11,6 +8,8 @@ const ShopRegister = () => {
   const { currentUser, userData } = useAuth();
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [checkingStatus, setCheckingStatus] = useState(true);
+  const [alreadyRegistered, setAlreadyRegistered] = useState(false);
 
   const [formData, setFormData] = useState({
     shopName: '',
@@ -21,6 +20,28 @@ const ShopRegister = () => {
     area: '',
     pinCode: ''
   });
+
+  // Check for existing registration
+  React.useEffect(() => {
+    const checkRegistration = async () => {
+      if (userData?.email) {
+        try {
+          const q = query(collection(db, "shops"), where("email", "==", userData.email));
+          const querySnapshot = await getDocs(q);
+          if (!querySnapshot.empty) {
+            setAlreadyRegistered(true);
+          }
+        } catch (error) {
+          console.error("Error checking shop registration:", error);
+        } finally {
+          setCheckingStatus(false);
+        }
+      } else if (currentUser === null) {
+        setCheckingStatus(false);
+      }
+    };
+    checkRegistration();
+  }, [userData, currentUser]);
 
   // Pre-fill form when userData is available
   React.useEffect(() => {
@@ -73,6 +94,53 @@ const ShopRegister = () => {
       setLoading(false);
     }
   };
+
+  if (checkingStatus) {
+    return (
+      <div className="shop-register-page">
+        <div className="container" style={{ textAlign: 'center', padding: '100px 0' }}>
+          <h3>Checking registration status...</h3>
+        </div>
+      </div>
+    );
+  }
+
+  if (alreadyRegistered) {
+    return (
+      <div className="shop-register-page">
+        <div className="container">
+          <motion.div
+            className="login-prompt-box"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4 }}
+            style={{ 
+              textAlign: 'center', 
+              padding: '50px 40px', 
+              background: 'white', 
+              borderRadius: '15px', 
+              boxShadow: '0 10px 25px rgba(0,0,0,0.05)',
+              maxWidth: '500px',
+              margin: '60px auto'
+            }}
+          >
+            <div style={{ fontSize: '60px', marginBottom: '20px' }}>🏪</div>
+            <h2 style={{ marginBottom: '15px', color: '#1a1a1a' }}>Already Partnered!</h2>
+            <p style={{ marginBottom: '30px', color: '#666', lineHeight: '1.6' }}>
+              You have already registered your shop with WashEase! You can manage your orders and shop details from your dashboard.
+            </p>
+            <button 
+              onClick={() => navigate('/shop-dashboard')} 
+              className="btn-primary"
+              style={{ padding: '12px 30px', width: 'auto' }}
+            >
+              Go to Shop Dashboard
+            </button>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
 
   if (!currentUser) {
     return (

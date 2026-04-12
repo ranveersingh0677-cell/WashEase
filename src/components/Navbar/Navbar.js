@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiMenu, FiX, FiUser, FiLogOut } from 'react-icons/fi';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
 import './Navbar.css';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [hasShop, setHasShop] = useState(false);
   const { userData, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -14,12 +17,30 @@ const Navbar = () => {
   const handleLogout = async () => {
     try {
       await logout();
+      setHasShop(false);
       toggleMenu();
       navigate('/login');
     } catch (error) {
       console.error("Logout failed", error);
     }
   };
+
+  useEffect(() => {
+    const checkShop = async () => {
+      if (userData?.email) {
+        try {
+          const q = query(collection(db, "shops"), where("email", "==", userData.email));
+          const querySnapshot = await getDocs(q);
+          setHasShop(!querySnapshot.empty);
+        } catch (error) {
+          console.error("Error checking shop registration:", error);
+        }
+      } else {
+        setHasShop(false);
+      }
+    };
+    checkShop();
+  }, [userData]);
 
   return (
     <nav className="navbar">
@@ -32,12 +53,12 @@ const Navbar = () => {
           <Link to="/place-order" className="nav-link" onClick={toggleMenu}>Place Order</Link>
           <Link to="/track-order" className="nav-link" onClick={toggleMenu}>Track Order</Link>
           <Link to="/my-orders" className="nav-link" onClick={toggleMenu}>My Orders</Link>
-          <Link to="/shop-dashboard" className="nav-link" onClick={toggleMenu}>Shop Dashboard</Link>
+          {hasShop && <Link to="/shop-dashboard" className="nav-link" onClick={toggleMenu}>Shop Dashboard</Link>}
           
           <div className="nav-actions">
             {userData ? (
               <div className="user-nav-info">
-                <Link to="/shop-register" className="nav-link partner-link" onClick={toggleMenu} style={{marginRight: '1rem'}}>Partner with us</Link>
+                {!hasShop && <Link to="/shop-register" className="nav-link partner-link" onClick={toggleMenu} style={{marginRight: '1rem'}}>Partner with us</Link>}
                 <span className="user-name">
                   <FiUser className="icon" /> {userData.name}
                 </span>
