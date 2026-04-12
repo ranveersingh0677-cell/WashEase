@@ -37,13 +37,16 @@ const ShopDashboard = () => {
       }
 
       try {
-        // 1. Fetch Shop Data - Try to find shop by email or phone
+        // 1. Fetch Shop Data - Must match currently logged in user's email
+        if (!userData.email) {
+          console.log("User email not found. Redirecting to registration.");
+          navigate('/shop-register');
+          return;
+        }
+
         const shopQuery = query(
           collection(db, "shops"),
-          or(
-            where("email", "==", userData.email || ""),
-            where("phone", "==", userData.phone || "")
-          )
+          where("email", "==", userData.email)
         );
         
         const shopSnapshot = await getDocs(shopQuery);

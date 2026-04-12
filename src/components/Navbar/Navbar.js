@@ -37,6 +37,7 @@ const Navbar = () => {
           <div className="nav-actions">
             {userData ? (
               <div className="user-nav-info">
+                <Link to="/shop-register" className="nav-link partner-link" onClick={toggleMenu} style={{marginRight: '1rem'}}>Partner with us</Link>
                 <span className="user-name">
                   <FiUser className="icon" /> {userData.name}
                 </span>
@@ -46,8 +47,8 @@ const Navbar = () => {
               </div>
             ) : (
               <>
-                <Link to="/login" className="btn-outline" onClick={toggleMenu}>Login</Link>
-                <Link to="/shop-register" className="btn-primary" onClick={toggleMenu}>Partner with us</Link>
+                <Link to="/shop-register" className="btn-outline" onClick={toggleMenu}>Partner with us</Link>
+                <Link to="/login" className="btn-primary" onClick={toggleMenu}>Login</Link>
               </>
             )}
           </div>
