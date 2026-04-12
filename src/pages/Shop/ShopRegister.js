@@ -8,19 +8,31 @@ import './ShopRegister.css';
 
 const ShopRegister = () => {
   const navigate = useNavigate();
-  const { userData } = useAuth();
+  const { currentUser, userData } = useAuth();
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     shopName: '',
-    ownerName: userData?.name || '',
-    phone: userData?.phone || '',
-    email: userData?.email || '',
+    ownerName: '',
+    phone: '',
+    email: '',
     address: '',
     area: '',
     pinCode: ''
   });
+
+  // Pre-fill form when userData is available
+  React.useEffect(() => {
+    if (userData) {
+      setFormData(prev => ({
+        ...prev,
+        ownerName: userData.name || '',
+        phone: userData.phone || '',
+        email: userData.email || ''
+      }));
+    }
+  }, [userData]);
 
   const [services, setServices] = useState({
     'Wash & Fold': true,
@@ -61,6 +73,43 @@ const ShopRegister = () => {
       setLoading(false);
     }
   };
+
+  if (!currentUser) {
+    return (
+      <div className="shop-register-page">
+        <div className="container">
+          <motion.div
+            className="login-prompt-box"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            style={{ 
+              textAlign: 'center', 
+              padding: '40px', 
+              background: 'white', 
+              borderRadius: '15px', 
+              boxShadow: '0 10px 25px rgba(0,0,0,0.05)',
+              maxWidth: '500px',
+              margin: '60px auto'
+            }}
+          >
+            <div style={{ fontSize: '50px', marginBottom: '20px' }}>🔐</div>
+            <h2 style={{ marginBottom: '15px', color: '#1a1a1a' }}>Login Required</h2>
+            <p style={{ marginBottom: '30px', color: '#666', lineHeight: '1.6' }}>
+              Please login first to register your shop and start partnering with WashEase.
+            </p>
+            <button 
+              onClick={() => navigate('/login')} 
+              className="btn-primary"
+              style={{ padding: '12px 30px', width: 'auto' }}
+            >
+              Login to Continue
+            </button>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
 
   if (submitted) {
     return (
