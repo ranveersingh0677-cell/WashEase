@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { FiPackage, FiCheckCircle, FiClock, FiDollarSign, FiLoader } from 'react-icons/fi';
-import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
+import { collection, query, where, orderBy, getDocs, or } from 'firebase/firestore';
+import { useNavigate } from 'react-router-dom';
 import { db } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
 import './ShopDashboard.css';
@@ -17,48 +18,84 @@ const statusColors = {
 
 const ShopDashboard = () => {
   const { userData } = useAuth();
+  const navigate = useNavigate();
+  const [shopData, setShopData] = useState(null);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState([
-    { label: 'Today\'s Orders', value: '0', icon: <FiPackage />, color: '#00B4D8' },
+    { label: 'Total Orders', value: '0', icon: <FiPackage />, color: '#00B4D8' },
     { label: 'Completed', value: '0', icon: <FiCheckCircle />, color: '#10B981' },
     { label: 'Pending', value: '0', icon: <FiClock />, color: '#F59E0B' },
-    { label: 'Today\'s Revenue', value: '₹0', icon: <FiDollarSign />, color: '#6366F1' },
+    { label: 'Total Items', value: '0', icon: <FiDollarSign />, color: '#6366F1' },
   ]);
 
   useEffect(() => {
-    const fetchShopOrders = async () => {
-      if (!userData?.name) return;
+    const initializeDashboard = async () => {
+      if (!userData) {
+        // Wait for userData to be available from AuthContext
+        return;
+      }
+
       try {
-        const q = query(
+        // 1. Fetch Shop Data - Try to find shop by email or phone
+        const shopQuery = query(
+          collection(db, "shops"),
+          or(
+            where("email", "==", userData.email || ""),
+            where("phone", "==", userData.phone || "")
+          )
+        );
+        
+        const shopSnapshot = await getDocs(shopQuery);
+        
+        if (shopSnapshot.empty) {
+          console.log("No shop found for this user. Redirecting to registration.");
+          navigate('/shop-register');
+          return;
+        }
+
+        const currentShop = {
+          id: shopSnapshot.docs[0].id,
+          ...shopSnapshot.docs[0].data()
+        };
+        setShopData(currentShop);
+
+        // 2. Fetch Shop Orders
+        const ordersQuery = query(
           collection(db, "orders"),
-          where("shopName", "==", userData.name),
+          where("shopName", "==", currentShop.shopName),
           orderBy("createdAt", "desc")
         );
-        const querySnapshot = await getDocs(q);
-        const fetchedOrders = querySnapshot.docs.map(doc => ({
+        
+        const orderSnapshot = await getDocs(ordersQuery);
+        const fetchedOrders = orderSnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
         }));
+        
         setOrders(fetchedOrders);
 
-        // Update basic stats
+        // 3. Update Stats
         const completed = fetchedOrders.filter(o => o.status === 'Delivered').length;
         const pending = fetchedOrders.length - completed;
+        const totalItems = fetchedOrders.reduce((acc, curr) => acc + (parseInt(curr.totalItems) || 0), 0);
+        
         setStats([
           { label: 'Total Orders', value: fetchedOrders.length.toString(), icon: <FiPackage />, color: '#00B4D8' },
           { label: 'Completed', value: completed.toString(), icon: <FiCheckCircle />, color: '#10B981' },
           { label: 'Pending', value: pending.toString(), icon: <FiClock />, color: '#F59E0B' },
-          { label: 'Total Items', value: fetchedOrders.reduce((acc, curr) => acc + (curr.totalItems || 0), 0).toString(), icon: <FiDollarSign />, color: '#6366F1' },
+          { label: 'Total Items', value: totalItems.toString(), icon: <FiDollarSign />, color: '#6366F1' },
         ]);
+
       } catch (error) {
-        console.error("Error fetching shop orders:", error);
+        console.error("Error initializing dashboard:", error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
-    fetchShopOrders();
-  }, [userData]);
+    initializeDashboard();
+  }, [userData, navigate]);
 
   if (loading) return <div className="loading-state"><FiLoader className="spinner" /> Loading Dashboard...</div>;
 
@@ -68,7 +105,7 @@ const ShopDashboard = () => {
         <div className="dashboard-header">
           <div>
             <h2>Shop Dashboard</h2>
-            <p>{userData?.name || 'Your Shop'} — Welcome back!</p>
+            <p>{shopData?.shopName || 'Your Shop'} — Welcome back!</p>
           </div>
           <Link to="/update-order" className="btn-primary">
             Update Order Status

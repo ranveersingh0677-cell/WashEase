@@ -1,16 +1,65 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../../firebase';
+import { useAuth } from '../../context/AuthContext';
 import './ShopRegister.css';
 
 const ShopRegister = () => {
   const navigate = useNavigate();
+  const { userData } = useAuth();
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const [formData, setFormData] = useState({
+    shopName: '',
+    ownerName: userData?.name || '',
+    phone: userData?.phone || '',
+    email: userData?.email || '',
+    address: '',
+    area: '',
+    pinCode: ''
+  });
+
+  const [services, setServices] = useState({
+    'Wash & Fold': true,
+    'Wash & Iron': true,
+    'Dry Cleaning': false,
+    'Blankets & Curtains': false
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleServiceChange = (service) => {
+    setServices(prev => ({ ...prev, [service]: !prev[service] }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => navigate('/shop-dashboard'), 2000);
+    setLoading(true);
+    
+    try {
+      const selectedServices = Object.keys(services).filter(s => services[s]);
+      
+      await addDoc(collection(db, "shops"), {
+        ...formData,
+        services: selectedServices,
+        createdAt: serverTimestamp(),
+        uid: userData?.uid || null // Optional: link to user ID if available
+      });
+
+      setSubmitted(true);
+      setTimeout(() => navigate('/shop-dashboard'), 2000);
+    } catch (error) {
+      console.error("Error registering shop:", error);
+      alert("Failed to register shop. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -52,21 +101,48 @@ const ShopRegister = () => {
               <div className="form-row">
                 <div className="form-group">
                   <label>Shop Name *</label>
-                  <input type="text" placeholder="e.g. Sharma Laundry" required />
+                  <input 
+                    type="text" 
+                    name="shopName"
+                    placeholder="e.g. Sharma Laundry" 
+                    value={formData.shopName}
+                    onChange={handleInputChange}
+                    required 
+                  />
                 </div>
                 <div className="form-group">
                   <label>Owner Name *</label>
-                  <input type="text" placeholder="Full name" required />
+                  <input 
+                    type="text" 
+                    name="ownerName"
+                    placeholder="Full name" 
+                    value={formData.ownerName}
+                    onChange={handleInputChange}
+                    required 
+                  />
                 </div>
               </div>
               <div className="form-row">
                 <div className="form-group">
                   <label>Phone Number *</label>
-                  <input type="tel" placeholder="10-digit mobile number" required />
+                  <input 
+                    type="tel" 
+                    name="phone"
+                    placeholder="10-digit mobile number" 
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    required 
+                  />
                 </div>
                 <div className="form-group">
                   <label>Email Address</label>
-                  <input type="email" placeholder="shop@example.com" />
+                  <input 
+                    type="email" 
+                    name="email"
+                    placeholder="shop@example.com" 
+                    value={formData.email}
+                    onChange={handleInputChange}
+                  />
                 </div>
               </div>
             </div>
@@ -75,24 +151,43 @@ const ShopRegister = () => {
               <h3>Shop Location (Jhansi)</h3>
               <div className="form-group">
                 <label>Full Address *</label>
-                <input type="text" placeholder="Shop address with landmark" required />
+                <input 
+                  type="text" 
+                  name="address"
+                  placeholder="Shop address with landmark" 
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  required 
+                />
               </div>
               <div className="form-row">
                 <div className="form-group">
                   <label>Area / Locality *</label>
-                  <select required defaultValue="">
+                  <select 
+                    name="area"
+                    value={formData.area}
+                    onChange={handleInputChange}
+                    required
+                  >
                     <option value="" disabled>Select area</option>
-                    <option>Civil Lines</option>
-                    <option>Sipri Bazar</option>
-                    <option>Sadar Bazar</option>
-                    <option>Cantonment</option>
-                    <option>Nai Sadak</option>
-                    <option>Other</option>
+                    <option value="Civil Lines">Civil Lines</option>
+                    <option value="Sipri Bazar">Sipri Bazar</option>
+                    <option value="Sadar Bazar">Sadar Bazar</option>
+                    <option value="Cantonment">Cantonment</option>
+                    <option value="Nai Sadak">Nai Sadak</option>
+                    <option value="Other">Other</option>
                   </select>
                 </div>
                 <div className="form-group">
                   <label>PIN Code *</label>
-                  <input type="text" placeholder="e.g. 284001" required />
+                  <input 
+                    type="text" 
+                    name="pinCode"
+                    placeholder="e.g. 284001" 
+                    value={formData.pinCode}
+                    onChange={handleInputChange}
+                    required 
+                  />
                 </div>
               </div>
             </div>
@@ -100,23 +195,20 @@ const ShopRegister = () => {
             <div className="form-section">
               <h3>Services Offered</h3>
               <div className="checkbox-group">
-                <label className="checkbox-label">
-                  <input type="checkbox" defaultChecked /> Wash & Fold
-                </label>
-                <label className="checkbox-label">
-                  <input type="checkbox" defaultChecked /> Wash & Iron
-                </label>
-                <label className="checkbox-label">
-                  <input type="checkbox" /> Dry Cleaning
-                </label>
-                <label className="checkbox-label">
-                  <input type="checkbox" /> Blankets & Curtains
-                </label>
+                {Object.keys(services).map(service => (
+                  <label key={service} className="checkbox-label">
+                    <input 
+                      type="checkbox" 
+                      checked={services[service]} 
+                      onChange={() => handleServiceChange(service)}
+                    /> {service}
+                  </label>
+                ))}
               </div>
             </div>
 
-            <button type="submit" className="btn-primary btn-submit">
-              Submit Registration
+            <button type="submit" className="btn-primary btn-submit" disabled={loading}>
+              {loading ? 'Submitting...' : 'Submit Registration'}
             </button>
           </form>
         </motion.div>
