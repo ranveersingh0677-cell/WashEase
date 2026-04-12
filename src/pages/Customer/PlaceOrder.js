@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { FiPlus, FiMinus, FiShoppingBag, FiMapPin } from 'react-icons/fi';
+import { FiPlus, FiMinus, FiShoppingBag, FiMapPin, FiLoader } from 'react-icons/fi';
 import './PlaceOrder.css';
 
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
 
@@ -20,11 +20,7 @@ const clothTypes = [
   'Kurta', 'Jacket', 'Bedsheet', 'Towel',
 ];
 
-const shops = [
-  { id: 'sharma',  label: 'Sharma Laundry',        area: 'Civil Lines, Jhansi' },
-  { id: 'clean',   label: 'Clean & Fresh',          area: 'Sipri Bazaar, Jhansi' },
-  { id: 'jhansi',  label: 'Jhansi Laundry House',  area: 'Sadar Bazaar, Jhansi' },
-];
+// Real shops will be fetched from Firestore
 
 const defaultItems = () =>
   Object.fromEntries(services.map((s) => [s.id, { qty: 0, clothType: '' }]));
@@ -43,10 +39,30 @@ const PlaceOrder = () => {
   const { currentUser, userData } = useAuth();
   const [items, setItems] = useState(defaultItems());
   const [selectedPayment] = useState('cash on delivery');
+  const [shops, setShops] = useState([]);
+  const [loadingShops, setLoadingShops] = useState(true);
   const [selectedShop, setSelectedShop] = useState('');
   const [address, setAddress] = useState('');
   const [pickupTime, setPickupTime] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchShops = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "shops"));
+        const shopsList = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setShops(shopsList);
+      } catch (error) {
+        console.error("Error fetching shops:", error);
+      } finally {
+        setLoadingShops(false);
+      }
+    };
+    fetchShops();
+  }, []);
 
   const updateQty = (id, delta) =>
     setItems((prev) => ({
@@ -88,7 +104,7 @@ const PlaceOrder = () => {
         totalItems: totalItemsCount,
         totalAmount: 0, // Confirmed after pickup
         shopId: selectedShop,
-        shopName: shopInfo?.label || '',
+        shopName: shopInfo?.shopName || '',
         address: address,
         pickupTime: pickupTime,
         paymentMethod: selectedPayment,
@@ -125,14 +141,28 @@ const PlaceOrder = () => {
                 onChange={(e) => setSelectedShop(e.target.value)}
                 required
                 className="shop-select"
+                disabled={loadingShops || shops.length === 0}
               >
-                <option value="">— Choose a shop —</option>
-                {shops.map((shop) => (
-                  <option key={shop.id} value={shop.id}>
-                    {shop.label} · {shop.area}
-                  </option>
-                ))}
+                {loadingShops ? (
+                  <option value="">Loading shops...</option>
+                ) : shops.length > 0 ? (
+                  <>
+                    <option value="">— Choose a shop —</option>
+                    {shops.map((shop) => (
+                      <option key={shop.id} value={shop.id}>
+                        {shop.shopName} · {shop.area} · {shop.address}
+                      </option>
+                    ))}
+                  </>
+                ) : (
+                  <option value="">No shops available in your area yet.</option>
+                )}
               </select>
+              {!loadingShops && shops.length === 0 && (
+                <p className="no-shops-msg" style={{ color: '#dc2626', fontSize: '14px', marginTop: '8px' }}>
+                  No shops available in your area yet. Check back soon!
+                </p>
+              )}
             </div>
 
             {/* Service rows */}
@@ -258,7 +288,7 @@ const PlaceOrder = () => {
 
                 {selectedShop && (
                   <div className="selected-shop-badge">
-                    🏪 {shops.find((s) => s.id === selectedShop)?.label}
+                    🏪 {shops.find((s) => s.id === selectedShop)?.shopName}
                   </div>
                 )}
               </div>
