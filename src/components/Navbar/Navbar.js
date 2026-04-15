@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiMenu, FiX, FiUser, FiLogOut } from 'react-icons/fi';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, onSnapshot } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
 import './Navbar.css';
@@ -26,20 +26,20 @@ const Navbar = () => {
   };
 
   useEffect(() => {
-    const checkShop = async () => {
-      if (userData?.email) {
-        try {
-          const q = query(collection(db, "shops"), where("email", "==", userData.email));
-          const querySnapshot = await getDocs(q);
-          setHasShop(!querySnapshot.empty);
-        } catch (error) {
-          console.error("Error checking shop registration:", error);
-        }
-      } else {
-        setHasShop(false);
-      }
-    };
-    checkShop();
+    let unsubscribe = () => {};
+
+    if (userData?.email) {
+      const q = query(collection(db, "shops"), where("email", "==", userData.email));
+      unsubscribe = onSnapshot(q, (querySnapshot) => {
+        setHasShop(!querySnapshot.empty);
+      }, (error) => {
+        console.error("Error monitoring shop registration:", error);
+      });
+    } else {
+      setHasShop(false);
+    }
+
+    return () => unsubscribe();
   }, [userData]);
 
   return (

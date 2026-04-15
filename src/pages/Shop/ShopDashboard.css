@@ -241,3 +241,29 @@
     align-items: flex-start;
   }
 }
+
+/* danger zone */
+.danger-zone {
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: center;
+}
+
+.btn-danger-outline {
+  background: white;
+  color: #dc2626;
+  border: 1px solid #dc2626;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-danger-outline:hover {
+  background: #dc2626;
+  color: white;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+}

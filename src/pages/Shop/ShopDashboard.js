@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { FiPackage, FiCheckCircle, FiClock, FiDollarSign, FiLoader, FiChevronDown, FiChevronUp, FiMapPin } from 'react-icons/fi';
-import { collection, query, where, orderBy, getDocs, updateDoc, doc } from 'firebase/firestore';
+import { collection, query, where, orderBy, getDocs, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
@@ -119,6 +119,28 @@ const ShopDashboard = () => {
       alert("Failed to update status. Please try again.");
     } finally {
       setUpdatingId(null);
+    }
+  };
+
+  const handleRemoveShop = async () => {
+    if (!shopData?.id) return;
+
+    const confirmed = window.confirm(
+      "Are you sure you want to remove your shop from WashEase? This cannot be undone."
+    );
+
+    if (confirmed) {
+      try {
+        setLoading(true);
+        await deleteDoc(doc(db, "shops", shopData.id));
+        alert("Your shop has been removed successfully");
+        navigate('/');
+      } catch (error) {
+        console.error("Error removing shop:", error);
+        alert("Failed to remove shop. Please try again.");
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -267,6 +289,16 @@ const ShopDashboard = () => {
               </tbody>
             </table>
           </div>
+        </div>
+
+        {/* Danger Zone */}
+        <div className="danger-zone">
+          <button 
+            className="btn-danger-outline"
+            onClick={handleRemoveShop}
+          >
+            Remove My Shop
+          </button>
         </div>
       </div>
     </div>

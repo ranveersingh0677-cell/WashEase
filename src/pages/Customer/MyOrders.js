@@ -23,6 +23,7 @@ const MyOrders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       if (!currentUser) return;
+      console.log("Current user ID:", currentUser.uid);
       try {
         const q = query(
           collection(db, "orders"),
@@ -34,9 +35,11 @@ const MyOrders = () => {
           id: doc.id,
           ...doc.data()
         }));
+        console.log("Orders fetched:", fetchedOrders.length);
         setOrders(fetchedOrders);
       } catch (error) {
         console.error("Error fetching my orders:", error);
+        console.error("Full error details:", error.code, error.message);
       }
       setLoading(false);
     };
