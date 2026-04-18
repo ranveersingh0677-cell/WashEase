@@ -118,6 +118,7 @@ const ShopDashboard = () => {
           orderId: order.orderId,
           message: `Your order ${order.orderId} status updated to ${newStatus}!`,
           status: newStatus,
+          type: "status_update",
           isRead: false,
           createdAt: serverTimestamp()
         });

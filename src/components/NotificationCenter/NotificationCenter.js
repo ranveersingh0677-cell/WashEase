@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import './NotificationCenter.css';
 
 const NotificationCenter = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, userData } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
@@ -21,9 +21,13 @@ const NotificationCenter = () => {
       Notification.requestPermission();
     }
 
+    // Include both UID and Email in identifiers
+    const identifiers = [currentUser.uid];
+    if (userData?.email) identifiers.push(userData.email);
+
     const q = query(
       collection(db, "notifications"),
-      where("recipientId", "==", currentUser.uid),
+      where("recipientId", "in", identifiers),
       orderBy("createdAt", "desc")
     );
 

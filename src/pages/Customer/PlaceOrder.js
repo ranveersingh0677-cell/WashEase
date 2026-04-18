@@ -115,6 +115,19 @@ const PlaceOrder = () => {
       console.log("Saving order with customerId:", currentUser.uid);
       console.log("Saving order for shop:", orderData.shopName);
       await addDoc(collection(db, "orders"), orderData);
+
+      // Create Notification for Shop Owner
+      if (shopInfo && shopInfo.email) {
+        await addDoc(collection(db, "notifications"), {
+          recipientId: shopInfo.email,
+          orderId: orderId,
+          message: `New order ${orderId} received from ${userData?.name || 'Guest User'}!`,
+          type: "new_order",
+          isRead: false,
+          createdAt: serverTimestamp()
+        });
+      }
+
       navigate('/track-order', { state: { orderId: orderId, newOrder: true } });
     } catch (error) {
       console.error("Error placing order:", error);

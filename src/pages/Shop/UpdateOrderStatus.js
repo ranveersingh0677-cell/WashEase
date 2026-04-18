@@ -60,6 +60,7 @@ const UpdateOrderStatus = () => {
           orderId: order.orderId,
           message: `Your order ${order.orderId} status updated to ${nextStatus}!`,
           status: nextStatus,
+          type: "status_update",
           isRead: false,
           createdAt: serverTimestamp()
         });
