@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FiEdit2, FiSave, FiX, FiInfo, FiMapPin, FiPhone, FiMail, FiTag } from 'react-icons/fi';
+import { FiEdit2, FiSave, FiX, FiInfo, FiMapPin, FiPhone, FiMail, FiTag, FiUser } from 'react-icons/fi';
 import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
