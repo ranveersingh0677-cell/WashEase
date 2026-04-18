@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FiEdit2, FiUser, FiMail, FiPhone, FiShoppingBag, FiInfo } from 'react-icons/fi';
-import { doc, updateDoc, collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
+import { doc, updateDoc, collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
 import './Profile.css';
@@ -24,7 +24,7 @@ const Profile = () => {
       });
       fetchOrderStats();
     }
-  }, [userData]);
+  }, [userData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchOrderStats = async () => {
     if (!currentUser?.uid) return;

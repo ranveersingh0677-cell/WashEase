@@ -60,7 +60,7 @@ const ShopProfile = () => {
 
   useEffect(() => {
     fetchShopData();
-  }, [userData]);
+  }, [userData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
