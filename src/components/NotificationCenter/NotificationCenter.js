@@ -54,7 +54,7 @@ const NotificationCenter = () => {
     });
 
     return () => unsubscribe();
-  }, [currentUser, unreadCount]);
+  }, [currentUser, unreadCount]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const handleClickOutside = (event) => {
