@@ -1,24 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiMenu, FiX, FiUser, FiLogOut } from 'react-icons/fi';
+import { FiMenu, FiX, FiUser, FiLogOut, FiChevronDown, FiSettings } from 'react-icons/fi';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
+import NotificationCenter from '../NotificationCenter/NotificationCenter';
 import './Navbar.css';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [userOpen, setUserOpen] = useState(false);
   const [hasShop, setHasShop] = useState(false);
   const { userData, logout } = useAuth();
   const navigate = useNavigate();
+  const dropdownRef = React.useRef(null);
 
   const toggleMenu = () => setIsOpen(!isOpen);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setUserOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleLogout = async () => {
     try {
       await logout();
       setHasShop(false);
-      toggleMenu();
+      setUserOpen(false);
+      if (isOpen) toggleMenu();
       navigate('/login');
     } catch (error) {
       console.error("Logout failed", error);
@@ -59,12 +73,29 @@ const Navbar = () => {
             {userData ? (
               <div className="user-nav-info">
                 {!hasShop && <Link to="/shop-register" className="nav-link partner-link" onClick={toggleMenu} style={{marginRight: '1rem'}}>Partner with us</Link>}
-                <span className="user-name">
-                  <FiUser className="icon" /> {userData.name}
-                </span>
-                <button onClick={handleLogout} className="logout-btn">
-                  <FiLogOut /> Logout
-                </button>
+                
+                <NotificationCenter />
+
+                <div className="user-dropdown-container" ref={dropdownRef}>
+                  <div className="user-name-trigger" onClick={() => setUserOpen(!userOpen)}>
+                    <FiUser className="icon" /> {userData.name.split(' ')[0]} <FiChevronDown style={{fontSize: '12px'}} />
+                  </div>
+                  
+                  {userOpen && (
+                    <div className="user-dropdown-menu">
+                      <Link 
+                        to={hasShop ? "/shop-profile" : "/profile"} 
+                        className="dropdown-item" 
+                        onClick={() => { setUserOpen(false); if(isOpen) toggleMenu(); }}
+                      >
+                        <FiSettings /> Profile
+                      </Link>
+                      <button onClick={handleLogout} className="dropdown-item logout-link">
+                        <FiLogOut /> Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             ) : (
               <>

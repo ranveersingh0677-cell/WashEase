@@ -19,6 +19,8 @@ import MyOrders from './pages/Customer/MyOrders';
 import ShopRegister from './pages/Shop/ShopRegister';
 import ShopDashboard from './pages/Shop/ShopDashboard';
 import UpdateOrderStatus from './pages/Shop/UpdateOrderStatus';
+import Profile from './pages/Customer/Profile';
+import ShopProfile from './pages/Shop/ShopProfile';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -58,10 +60,19 @@ function App() {
                   </ProtectedRoute>
                 } 
               />
+              <Route 
+                path="/profile" 
+                element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                } 
+              />
               
               <Route path="/track-order" element={<OrderTracking />} />
               <Route path="/shop-register" element={<ShopRegister />} />
               <Route path="/shop-dashboard" element={<ShopDashboard />} />
+              <Route path="/shop-profile" element={<ShopProfile />} />
               <Route path="/update-order" element={<UpdateOrderStatus />} />
               
               {/* Fallback for old /auth route */}

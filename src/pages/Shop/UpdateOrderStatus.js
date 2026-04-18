@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { FiCheck, FiLoader } from 'react-icons/fi';
-import { collection, query, where, orderBy, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { collection, query, where, orderBy, getDocs, doc, updateDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
 import './UpdateOrderStatus.css';
@@ -51,6 +51,19 @@ const UpdateOrderStatus = () => {
       await updateDoc(orderRef, {
         status: nextStatus
       });
+      
+      // Create Notification for Customer
+      const order = orders.find(o => o.id === docId);
+      if (order && order.customerId) {
+        await addDoc(collection(db, "notifications"), {
+          recipientId: order.customerId,
+          orderId: order.orderId,
+          message: `Your order ${order.orderId} status updated to ${nextStatus}!`,
+          status: nextStatus,
+          isRead: false,
+          createdAt: serverTimestamp()
+        });
+      }
       
       // Update local state
       setOrders(prev => prev.map(o => o.id === docId ? { ...o, status: nextStatus } : o));

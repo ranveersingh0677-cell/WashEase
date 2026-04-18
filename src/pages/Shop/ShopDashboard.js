@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { FiPackage, FiCheckCircle, FiClock, FiDollarSign, FiLoader, FiChevronDown, FiChevronUp, FiMapPin } from 'react-icons/fi';
-import { collection, query, where, orderBy, getDocs, updateDoc, doc, deleteDoc } from 'firebase/firestore';
+import { collection, query, where, orderBy, getDocs, updateDoc, doc, deleteDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
@@ -109,6 +109,19 @@ const ShopDashboard = () => {
     try {
       const orderRef = doc(db, "orders", docId);
       await updateDoc(orderRef, { status: newStatus });
+      
+      // Create Notification for Customer
+      const order = orders.find(o => o.id === docId);
+      if (order && order.customerId) {
+        await addDoc(collection(db, "notifications"), {
+          recipientId: order.customerId,
+          orderId: order.orderId,
+          message: `Your order ${order.orderId} status updated to ${newStatus}!`,
+          status: newStatus,
+          isRead: false,
+          createdAt: serverTimestamp()
+        });
+      }
       
       // Update local state
       setOrders(prev => prev.map(order => 
