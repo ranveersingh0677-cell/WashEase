@@ -132,17 +132,17 @@ const Home = () => {
             <div className="service-card">
               <h3>Wash & Fold</h3>
               <p>Everyday clothes washed and neatly folded.</p>
-              <span className="price">Starting from ₹10/piece</span>
+              <span className="price">Price decided by shop owner</span>
             </div>
             <div className="service-card">
               <h3>Wash & Iron</h3>
               <p>Washed, pressed, and ready to wear.</p>
-              <span className="price">Starting from ₹15/piece</span>
+              <span className="price">Price decided by shop owner</span>
             </div>
             <div className="service-card">
               <h3>Dry Cleaning</h3>
               <p>Premium care for your delicate fabrics.</p>
-              <span className="price">Starting from ₹50/piece</span>
+              <span className="price">Price decided by shop owner</span>
             </div>
           </div>
         </div>

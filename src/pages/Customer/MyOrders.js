@@ -92,7 +92,7 @@ const MyOrders = () => {
                   >
                     {order.status}
                   </span>
-                  <span className="order-amount">₹{order.totalAmount || 'TBD'}</span>
+                  <span className="order-amount">To be confirmed by shop</span>
                   <Link to="/track-order" state={{ orderId: order.orderId }} className="track-link">
                     Track <FiArrowRight />
                   </Link>

@@ -116,6 +116,10 @@ const OrderTracking = () => {
                   <span className="meta-value">{orderData.shopName}</span>
                 </div>
                 <div className="meta-row">
+                  <span className="meta-label">Price</span>
+                  <span className="meta-value">To be confirmed by shop</span>
+                </div>
+                <div className="meta-row">
                   <span className="meta-label">Address</span>
                   <span className="meta-value">{orderData.address}</span>
                 </div>

@@ -205,6 +205,7 @@ const ShopDashboard = () => {
                   <th>Order ID</th>
                   <th>Customer</th>
                   <th>Items</th>
+                  <th>Amount</th>
                   <th>Date</th>
                   <th>Status</th>
                   <th>Action</th>
@@ -222,6 +223,7 @@ const ShopDashboard = () => {
                           <td className="order-id">{order.orderId}</td>
                           <td>{order.customerName}</td>
                           <td>{order.totalItems} pcs</td>
+                          <td style={{ fontSize: '11px', color: 'var(--text-muted)' }}>To be confirmed by shop</td>
                           <td>{order.createdAt?.toDate ? order.createdAt.toDate().toLocaleDateString() : 'Today'}</td>
                           <td>
                             <select 

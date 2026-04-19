@@ -9,10 +9,10 @@ import { db } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
 
 const services = [
-  { id: 'wash-fold',  name: 'Wash & Fold',   priceRange: '₹8 – ₹15 / piece',   icon: '👕' },
-  { id: 'wash-iron',  name: 'Wash & Iron',   priceRange: '₹12 – ₹20 / piece',  icon: '👔' },
-  { id: 'dry-clean',  name: 'Dry Cleaning',  priceRange: '₹40 – ₹80 / piece',  icon: '👗' },
-  { id: 'iron-only',  name: 'Ironing Only',  priceRange: '₹5 – ₹10 / piece',   icon: '🧺' },
+  { id: 'wash-fold',  name: 'Wash & Fold',   icon: '👕' },
+  { id: 'wash-iron',  name: 'Wash & Iron',   icon: '👔' },
+  { id: 'dry-clean',  name: 'Dry Cleaning',  icon: '👗' },
+  { id: 'iron-only',  name: 'Ironing Only',  icon: '🧺' },
 ];
 
 const clothTypes = [
@@ -196,7 +196,6 @@ const PlaceOrder = () => {
                     <span className="service-icon">{service.icon}</span>
                     <div>
                       <h4>{service.name}</h4>
-                      <p className="price-range">{service.priceRange}</p>
                     </div>
                   </div>
                   <div className="quantity-controls">
@@ -239,8 +238,9 @@ const PlaceOrder = () => {
             <div className="pricing-note">
               <span>ℹ️</span>
               <p>
-                Final price will be confirmed by the shop after pickup.
-                <br />Prices may vary by shop.
+                Prices will be discussed directly with the shop owner. 
+                The shop owner will contact you after your order is placed 
+                to confirm the final price and pickup time.
               </p>
             </div>
 
@@ -286,14 +286,14 @@ const PlaceOrder = () => {
                   items[s.id].qty > 0 ? (
                     <div className="summary-row" key={s.id}>
                       <span>{s.name} × {items[s.id].qty}</span>
-                      <span className="price-tbd">TBD</span>
+                      <span className="price-tbd">—</span>
                     </div>
                   ) : null
                 )}
 
                 <div className="summary-row">
-                  <span>Estimated Total</span>
-                  <span className="price-tbd">Confirmed after pickup</span>
+                  <span>Price</span>
+                  <span className="price-tbd">To be confirmed by shop</span>
                 </div>
 
                 <div className="summary-row">
