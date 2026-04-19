@@ -17,7 +17,7 @@ const services = [
 ];
 
 // Initialize EmailJS
-emailjs.init(process.env.REACT_APP_EMAILJS_PUBLIC_KEY);
+emailjs.init("TjqDatmFPc5dH26JJ");
 
 const clothTypes = [
   'Shirt', 'T-Shirt', 'Jeans', 'Trousers', 'Saree',
@@ -143,8 +143,8 @@ const PlaceOrder = () => {
           .join(', ');
 
         emailjs.send(
-          process.env.REACT_APP_EMAILJS_SERVICE_ID,
-          process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
+          "service_iyk4bwr",
+          "template_dahs5zh",
           {
             shop_name: shopInfo?.shopName || 'Laundry Shop',
             shop_email: shopInfo?.email || '',
@@ -154,7 +154,7 @@ const PlaceOrder = () => {
             items: itemsSummary,
             address: address,
           },
-          process.env.REACT_APP_EMAILJS_PUBLIC_KEY
+          "TjqDatmFPc5dH26JJ"
         ).then(() => {
           console.log("Email sent successfully to shop owner!");
         }).catch((err) => {
