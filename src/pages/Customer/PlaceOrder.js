@@ -144,7 +144,7 @@ const PlaceOrder = () => {
 
         emailjs.send(
           "service_iyk4bwr",
-          "template_dahs5zh",
+          "template_2s6tlog",
           {
             shop_name: shopInfo?.shopName || 'Laundry Shop',
             shop_email: shopInfo?.email || '',
