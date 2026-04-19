@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { FiPlus, FiMinus, FiShoppingBag, FiMapPin } from 'react-icons/fi';
+import emailjs from '@emailjs/browser';
 import './PlaceOrder.css';
 
 import { collection, addDoc, serverTimestamp, getDocs } from 'firebase/firestore';
@@ -14,6 +15,9 @@ const services = [
   { id: 'dry-clean',  name: 'Dry Cleaning',  icon: '👗' },
   { id: 'iron-only',  name: 'Ironing Only',  icon: '🧺' },
 ];
+
+// Initialize EmailJS
+emailjs.init(process.env.REACT_APP_EMAILJS_PUBLIC_KEY);
 
 const clothTypes = [
   'Shirt', 'T-Shirt', 'Jeans', 'Trousers', 'Saree',
@@ -126,6 +130,38 @@ const PlaceOrder = () => {
           isRead: false,
           createdAt: serverTimestamp()
         });
+      }
+
+      // ── EMAILJS NOTIFICATION (Non-blocking) ──
+      try {
+        const itemsSummary = Object.entries(items)
+          .filter(([_, details]) => details.qty > 0)
+          .map(([id, details]) => {
+            const serviceName = services.find(s => s.id === id)?.name || id;
+            return `${serviceName}: ${details.qty} ${details.clothType || 'pieces'}`;
+          })
+          .join(', ');
+
+        emailjs.send(
+          process.env.REACT_APP_EMAILJS_SERVICE_ID,
+          process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
+          {
+            shop_name: shopInfo?.shopName || 'Laundry Shop',
+            shop_email: shopInfo?.email || '',
+            order_id: orderId,
+            customer_name: userData?.name || 'Guest',
+            customer_phone: userData?.phone || 'N/A',
+            items: itemsSummary,
+            address: address,
+          },
+          process.env.REACT_APP_EMAILJS_PUBLIC_KEY
+        ).then(() => {
+          console.log("Email sent successfully to shop owner!");
+        }).catch((err) => {
+          console.error("EmailJS Error:", err);
+        });
+      } catch (emailErr) {
+        console.error("Error preparing EmailJS call:", emailErr);
       }
 
       navigate('/track-order', { state: { orderId: orderId, newOrder: true } });
